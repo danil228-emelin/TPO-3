@@ -9,9 +9,13 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
 
-public class TestImageUpload extends BaseTest {
+public class TestImageUpload extends Config {
+
+
     @Test
     public void testImageUpload() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+
         String imagePath = "/home/danil-emelin/IdeaProjects/TPO-3.2/src/test/resources/photo.png";
         String fileName = Paths.get(imagePath).getFileName().toString();
 
@@ -20,7 +24,6 @@ public class TestImageUpload extends BaseTest {
                 "Test image file not found: " + imagePath);
 
         try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
 
             // 1. Upload the file
             WebElement fileInput = wait.until(ExpectedConditions.presenceOfElementLocated(
@@ -45,9 +48,10 @@ public class TestImageUpload extends BaseTest {
 
     @Test
     public void testInvalidFileTypeUpload() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+
         String filePath = "/home/danil-emelin/IdeaProjects/TPO-3.2/src/test/resources/TPO.txt";
         Assert.assertTrue(Files.exists(Paths.get(filePath)));
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
 
         WebElement fileInput = driver.findElement(By.cssSelector("input[type='file']"));
         fileInput.sendKeys(filePath);
@@ -61,4 +65,55 @@ public class TestImageUpload extends BaseTest {
                 By.xpath("/html/body/div[2]/table[2]/tbody/tr[2]/td/div")));
         Assert.assertTrue(errorMsg.isDisplayed());
     }
+
+
+    @Test
+    public void testSaveFileWithOptions() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+
+
+        String imagePath = "/home/danil-emelin/IdeaProjects/TPO-3.2/src/test/resources/photo.png";
+
+        // Verify file exists
+        Assert.assertTrue(Files.exists(Paths.get(imagePath)),
+                "Test image file not found: " + imagePath);
+
+        try {
+
+            // 1. Upload the file
+            WebElement fileInput = wait.until(ExpectedConditions.presenceOfElementLocated(
+                    By.xpath("//input[@type='file']")));
+            fileInput.sendKeys(imagePath);
+
+            // Locate the radio button element
+
+            WebElement nameChooseButton = wait.until(ExpectedConditions.presenceOfElementLocated(
+                    By.xpath("//*[@id=\"check_thumb\"]")));
+            nameChooseButton.click();
+
+            Assert.assertTrue(nameChooseButton.isSelected(), "Name options is enabled");
+
+            // 2. Create new description for file
+            WebElement textField = wait.until(ExpectedConditions.presenceOfElementLocated(
+                    By.xpath("//*[@id=\"thumb_text\"]")));
+            textField.clear();
+            textField.sendKeys("NEW_FILE_NAME");
+
+            // 3. Send the file
+            WebElement uploadButton = wait.until(ExpectedConditions.presenceOfElementLocated(
+                    By.xpath("//*[@id=\"uploadButton\"]")));
+            uploadButton.click();
+
+            // Check for success message
+            WebElement successMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                    By.xpath("/html/body/div[2]/table[2]/tbody/tr[3]/td/div/div[2]/div[1]/h3")));
+            Assert.assertTrue(successMsg.isDisplayed(), "Upload success message displayed");
+
+
+        } catch (Exception e) {
+            Assert.fail("Upload test failed: " + e.getMessage());
+        }
+
+    }
+
 }

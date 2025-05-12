@@ -8,7 +8,7 @@ import org.testng.annotations.Test;
 
 import java.time.Duration;
 
-public class TestHomePageLoads extends BaseTest {
+public class TestHomePageLoads extends Config {
 
     // Test case 1: Verify home page loads correctly
     @Test
