@@ -25,8 +25,8 @@ public class BaseTest {
         } else if (browser.equalsIgnoreCase("firefox")) {
             WebDriverManager.firefoxdriver().setup();
             FirefoxOptions options = new FirefoxOptions();
-            options.addArguments("--headless");
-            options.addArguments("--window-size=1920,1080");
+            //options.addArguments("--headless");
+            //options.addArguments("--window-size=1920,1080");
             driver = new FirefoxDriver(options);
         }
 
