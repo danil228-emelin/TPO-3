@@ -38,10 +38,27 @@ public class TestImageUpload extends BaseTest {
             Assert.assertTrue(successMsg.isDisplayed(), "Upload success message displayed");
 
 
-
-
         } catch (Exception e) {
             Assert.fail("Upload test failed: " + e.getMessage());
         }
+    }
+
+    @Test
+    public void testInvalidFileTypeUpload() {
+        String filePath = "/home/danil-emelin/IdeaProjects/TPO-3.2/src/test/resources/TPO.txt";
+        Assert.assertTrue(Files.exists(Paths.get(filePath)));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+
+        WebElement fileInput = driver.findElement(By.cssSelector("input[type='file']"));
+        fileInput.sendKeys(filePath);
+
+        // 1. Send the file
+        WebElement uploadButton = wait.until(ExpectedConditions.presenceOfElementLocated(
+                By.xpath("//*[@id=\"uploadButton\"]")));
+        uploadButton.click();
+
+        WebElement errorMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.xpath("/html/body/div[2]/table[2]/tbody/tr[2]/td/div")));
+        Assert.assertTrue(errorMsg.isDisplayed());
     }
 }
