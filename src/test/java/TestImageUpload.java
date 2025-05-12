@@ -6,6 +6,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
@@ -219,5 +220,66 @@ public class TestImageUpload extends Config {
             Assert.fail("File accessibility check failed: " + e.getMessage());
         }
     }
+
+    @Test
+    public void testUploadPngViaLink() throws IOException {
+        String imagePath = "/home/danil-emelin/IdeaProjects/TPO-3.2/src/test/resources/photo.png";
+        Assert.assertTrue(Files.exists(Paths.get(imagePath)), "Test image not found");
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+
+        try {
+            // 1 Загрузка файла
+            WebElement fileInput = wait.until(ExpectedConditions.presenceOfElementLocated(
+                    By.xpath("//input[@type='file']")));
+            fileInput.sendKeys(imagePath);
+
+            // 1.2. Нажатие кнопки загрузки
+            WebElement uploadButton = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.id("uploadButton")));
+            uploadButton.click();
+
+
+            // 4. Проверка оригинального изображения (если доступна отдельная ссылка)
+            WebElement originalLink = wait.until(ExpectedConditions.presenceOfElementLocated(
+                    By.xpath("/html/body/div[2]/table[2]/tbody/tr[3]/td/div/div[2]/div[2]/ul/li[1]/input")));
+
+            String originalUrl = originalLink.getAttribute("value");
+
+            WebElement switchLink = new WebDriverWait(driver, Duration.ofSeconds(10))
+                    .until(ExpectedConditions.presenceOfElementLocated(
+                            By.cssSelector("a.jslink#switch_to_copy")));
+
+            // Проверяем, что элемент видим и кликабелен
+            Assert.assertTrue(switchLink.isDisplayed(), "Ссылка не отображается");
+            Assert.assertTrue(switchLink.isEnabled(), "Ссылка неактивна");
+
+            // Кликаем
+            switchLink.click();
+
+            WebElement textarea = new WebDriverWait(driver, Duration.ofSeconds(10))
+                    .until(ExpectedConditions.presenceOfElementLocated(
+                            By.id("upload_files")));
+
+            // 2. Очищаем (если нужно)
+            textarea.clear();
+
+            // 3. Вводим текст
+            textarea.sendKeys(originalUrl);
+
+            // 4. Сохраняем по ссылке.
+            uploadButton = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.id("uploadButton")));
+            uploadButton.click();
+
+            // Check for success message
+            WebElement successMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                    By.xpath("/html/body/div[2]/table[2]/tbody/tr[2]/td/div")));
+            Assert.assertTrue(successMsg.isDisplayed(), "Upload success message displayed");
+
+        } catch (Exception e) {
+            Assert.fail("Image content verification failed: " + e.getMessage());
+        }
+    }
+
 
 }
