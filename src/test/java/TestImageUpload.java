@@ -1,6 +1,7 @@
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -114,6 +115,58 @@ public class TestImageUpload extends Config {
             Assert.fail("Upload test failed: " + e.getMessage());
         }
 
+    }
+
+    @Test
+    public void testImageRotationOptions() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        String imagePath = "/home/danil-emelin/IdeaProjects/TPO-3.2/src/test/resources/photo.png";
+
+        Assert.assertTrue(Files.exists(Paths.get(imagePath)), "Test image file not found");
+
+        try {
+            // 1. Загрузка изображения
+            WebElement fileInput = wait.until(ExpectedConditions.presenceOfElementLocated(
+                    By.xpath("//input[@type='file']")));
+            fileInput.sendKeys(imagePath);
+
+            // 2. Активация чекбокса поворота
+            WebElement rotateCheckbox = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.id("check_orig_rotate")));
+
+            if (!rotateCheckbox.isSelected()) {
+                rotateCheckbox.click();
+            }
+            Assert.assertTrue(rotateCheckbox.isSelected(), "Rotate checkbox should be selected");
+
+            // 3. Тестирование всех вариантов поворота
+            WebElement rotateSelect = wait.until(ExpectedConditions.presenceOfElementLocated(
+                    By.id("orig-rotate")));
+            Select rotationDropdown = new Select(rotateSelect);
+
+
+            // Выбираем вариант поворота
+            rotationDropdown.selectByValue("90");
+
+            // Проверяем, что выбор сохранился
+            String selectedValue = rotationDropdown.getFirstSelectedOption().getAttribute("value");
+            Assert.assertEquals(selectedValue, "90",
+                    "Rotation should be " + "90" + " degrees");
+
+
+            WebElement uploadButton = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.id("uploadButton")));
+            uploadButton.click();
+
+            // Check for success message
+            WebElement successMsg = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                    By.xpath("/html/body/div[2]/table[2]/tbody/tr[3]/td/div/div[2]/div[1]/h3")));
+            Assert.assertTrue(successMsg.isDisplayed(), "Upload success message displayed");
+
+
+        } catch (Exception e) {
+            Assert.fail("Rotation test failed: " + e.getMessage());
+        }
     }
 
 }
