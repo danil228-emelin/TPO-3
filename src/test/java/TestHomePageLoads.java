@@ -8,7 +8,7 @@ import org.testng.annotations.Test;
 
 import java.time.Duration;
 
-public class FastpicTests extends BaseTest {
+public class TestHomePageLoads extends BaseTest {
 
     // Test case 1: Verify home page loads correctly
     @Test
