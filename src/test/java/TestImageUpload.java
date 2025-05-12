@@ -6,6 +6,8 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Duration;
@@ -166,6 +168,55 @@ public class TestImageUpload extends Config {
 
         } catch (Exception e) {
             Assert.fail("Rotation test failed: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testUploadAndVerifyDownloadLink() {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        String imagePath = "/home/danil-emelin/IdeaProjects/TPO-3.2/src/test/resources/photo.png";
+
+        try {
+            // 1. Загрузка изображения
+            WebElement fileInput = wait.until(ExpectedConditions.presenceOfElementLocated(
+                    By.xpath("//input[@type='file']")));
+            fileInput.sendKeys(imagePath);
+
+            // 2. Нажатие кнопки загрузки
+            WebElement uploadButton = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.id("uploadButton")));
+            uploadButton.click();
+
+            // 3. Ожидание появления ссылки
+            WebElement linkInput = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                    By.xpath("//input[contains(@style,'width: 87%')]")));
+
+            // 4. Получение значения ссылки
+            String downloadUrl = linkInput.getAttribute("value");
+            Assert.assertFalse(downloadUrl.isEmpty(), "Download URL should not be empty");
+
+            // 5. Проверка формата ссылки
+            Assert.assertTrue(downloadUrl.startsWith("https://fastpic.org/view/"),
+                    "URL should start with fastpic domain");
+            Assert.assertTrue(downloadUrl.endsWith(".png.html"),
+                    "URL should point to PNG file");
+
+            // 6. Дополнительная проверка доступности файла
+            verifyFileAccessible(downloadUrl);
+
+        } catch (Exception e) {
+            Assert.fail("Upload and link verification failed: " + e.getMessage());
+        }
+    }
+
+    private void verifyFileAccessible(String url) {
+        try {
+            HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+            connection.setRequestMethod("HEAD");
+            int responseCode = connection.getResponseCode();
+            Assert.assertEquals(responseCode, 200, "File should be accessible (HTTP 200)");
+        } catch (Exception e) {
+            Assert.fail("File accessibility check failed: " + e.getMessage());
         }
     }
 
