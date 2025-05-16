@@ -7,7 +7,10 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
@@ -30,7 +33,6 @@ public class TestImageUpload extends Config {
     public void testImageUpload() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
         String imagePath = "/home/danil-emelin/IdeaProjects/TPO-3.2/src/test/resources/photo.png";
-        String fileName = Paths.get(imagePath).getFileName().toString();
         Assert.assertTrue(Files.exists(Paths.get(imagePath)),
                 "Test image file not found: " + imagePath);
         try {
@@ -267,7 +269,6 @@ public class TestImageUpload extends Config {
      */
     @Test
     public void testLinkForwarding() {
-        WebDriverWait wait = new WebDriverWait(driver, WAIT_TIMEOUT);
 
         driver.get(IMAGE_URL);
 
