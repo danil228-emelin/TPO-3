@@ -10,13 +10,12 @@ import java.time.Duration;
 
 public class TestHomePageLoads extends Config {
 
-    // Test case 1: Verify home page loads correctly
+    /**
+     * Test home page loading
+     */
     @Test
     public void testHomePageLoads() {
-        // Wait for page to load completely
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-
-        // Verify title
         String title = driver.getTitle();
         Assert.assertTrue(title.toLowerCase().contains("fastpic"),
                 "Home page title doesn't contain 'FastPic'. Actual title: " + title);
